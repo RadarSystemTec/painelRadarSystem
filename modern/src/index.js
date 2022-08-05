@@ -1,6 +1,6 @@
 import 'typeface-roboto';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { CssBaseline, ThemeProvider, StyledEngineProvider } from '@mui/material';
@@ -16,27 +16,24 @@ import ServerProvider from './ServerProvider';
 
 preloadImages();
 
-const base = window.location.href.indexOf('modern') >= 0 ? '/modern' : '/';
-
-ReactDOM.render(
-  (
-    <Provider store={store}>
-      <LocalizationProvider>
-        <StyledEngineProvider injectFirst>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <ServerProvider>
-              <BrowserRouter basename={base}>
-                <Navigation />
-              </BrowserRouter>
-            </ServerProvider>
-            <ErrorHandler />
-            <NativeInterface />
-          </ThemeProvider>
-        </StyledEngineProvider>
-      </LocalizationProvider>
-    </Provider>
-  ), document.getElementById('root'),
+const root = createRoot(document.getElementById('root'));
+root.render(
+  <Provider store={store}>
+    <LocalizationProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <ServerProvider>
+            <BrowserRouter>
+              <Navigation />
+            </BrowserRouter>
+          </ServerProvider>
+          <ErrorHandler />
+          <NativeInterface />
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </LocalizationProvider>
+  </Provider>,
 );
 
 serviceWorkerRegistration.register();

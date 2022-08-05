@@ -21,6 +21,7 @@ import { formatTime } from '../common/util/formatter';
 import ReportFilter from '../reports/components/ReportFilter';
 import { useTranslation } from '../common/components/LocalizationProvider';
 import { useCatch } from '../reactHelper';
+import MapCamera from '../map/MapCamera';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -98,7 +99,9 @@ const ReplayPage = () => {
   });
 
   const onClick = useCallback((positionId) => {
-    navigate(`/position/${positionId}`);
+    if (positionId) {
+      navigate(`/position/${positionId}`);
+    }
   }, [navigate]);
 
   useEffect(() => {
@@ -153,6 +156,7 @@ const ReplayPage = () => {
           <MapPositions positions={[positions[index]]} onClick={onClick} />
         )}
       </MapView>
+      <MapCamera positions={positions} />
       <div className={classes.sidebar}>
         <Paper elevation={3} square>
           <Toolbar>

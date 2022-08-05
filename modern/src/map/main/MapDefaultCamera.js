@@ -46,6 +46,7 @@ const MapDefaultCamera = () => {
           //     padding: Math.min(canvas.width, canvas.height) * 0.1,
           //   });
           map.fitBounds(bounds);
+
           setInitialized(true);
         } else if (coordinates.length) {
           //   const [individual] = coordinates;

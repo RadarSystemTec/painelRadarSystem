@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useId, useEffect, useState } from 'react';
 import { kml } from '@tmcw/togeojson';
-
 import { useTheme } from '@mui/styles';
 import { map } from '../core/MapView';
 import { useEffectAsync } from '../../reactHelper';
@@ -8,7 +7,7 @@ import { usePreference } from '../../common/util/preferences';
 import { findFonts } from '../core/mapUtil';
 
 const PoiMap = () => {
-  const id = 'poi';
+  const id = useId();
 
   const theme = useTheme();
 
@@ -79,7 +78,7 @@ const PoiMap = () => {
         }
       };
     }
-    return null;
+    return () => {};
   }, [data]);
 
   return null;
