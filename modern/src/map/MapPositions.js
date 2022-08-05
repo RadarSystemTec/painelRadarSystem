@@ -51,7 +51,6 @@ const MapPositions = ({ positions, onClick, showStatus }) => {
     }
   }, [onClick]);
 
-<<<<<<< HEAD
   // const onClusterClick = useCallback((event) => {
   //   const features = map.queryRenderedFeatures(event.point, {
   //     layers: [clusters],
