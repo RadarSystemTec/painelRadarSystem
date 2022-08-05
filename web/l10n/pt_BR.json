@@ -163,6 +163,7 @@
     "deviceContact": "Contato",
     "deviceCategory": "Categoria",
     "deviceLastUpdate": "Última Atualização",
+    "deviceName" : "Nome do Dispositivo",
     "deviceCommand": "Comando",
     "deviceFollow": "Seguir",
     "deviceTotalDistance": "Distância total",

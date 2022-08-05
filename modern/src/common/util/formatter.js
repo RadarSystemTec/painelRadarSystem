@@ -88,6 +88,17 @@ export const getStatusColor = (status) => {
   }
 };
 
+export const deviceColor = (device) => {
+  switch (device.status) {
+    case 'online':
+      return '#4dfa90';
+    case 'offline':
+      return '#FF0000';
+    default:
+      return '#f2e3b2';
+  }
+};
+
 export const getBatteryStatus = (batteryLevel) => {
   if (batteryLevel >= 70) {
     return 'positive';

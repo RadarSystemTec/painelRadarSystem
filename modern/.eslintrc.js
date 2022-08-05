@@ -11,6 +11,7 @@ module.exports = {
     'max-len': [0],
     'no-shadow': [0],
     'no-return-assign': [0],
+    'no-unused-vars' : [0],
     'no-param-reassign': [0],
     'no-prototype-builtins': [0],
     'no-nested-ternary': [0],

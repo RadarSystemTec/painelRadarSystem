@@ -3,6 +3,9 @@ import React, {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  GoogleMap, TrafficLayer, TransitLayer, useJsApiLoader,
+} from '@react-google-maps/api';
+import {
   Paper, Toolbar, IconButton, Button, OutlinedInput, InputAdornment, Popover, FormControl, InputLabel, Select, MenuItem, FormGroup, FormControlLabel, Checkbox, Badge,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
@@ -134,6 +137,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const MainPage = () => {
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: 'AIzaSyDzyyar2X07M9LYyyYcXCn35qkXrCXo6tM',
+  });
+
   const classes = useStyles();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -202,16 +209,51 @@ const MainPage = () => {
         const time2 = device2.lastUpdate ? moment(device2.lastUpdate).valueOf() : 0;
         return time2 - time1;
       });
+    } else if (filterSort === 'deviceName') {
+      filtered.sort((device1, device2) => device1.name.localeCompare(device2.name));
     }
+
     setFilteredDevices(filtered);
     setFilteredPositions(filterMap
       ? filtered.map((device) => positions[device.id]).filter(Boolean)
       : Object.values(positions));
   }, [devices, positions, filterKeyword, filterStatuses, filterGroups, filterSort, filterMap]);
 
-  return (
+  const containerStyle = {
+    width: '100%',
+    height: '100%',
+  };
+
+  const mapOptions = { fullscreenControl: false, streetViewControl: false, zoomControl: false, mapTypeControl: false };
+  // const mapOptions = {};
+
+  const onLoad = React.useCallback((map) => {
+    const bounds = new window.google.maps.LatLngBounds();
+    map.fitBounds(bounds);
+    // setMap(map)
+  }, []);
+
+  const onUnmount = React.useCallback((map) => {
+    // setMap(null);
+  }, []);
+
+  return isLoaded ? (
     <div className={classes.root}>
-      <MapView>
+      <GoogleMap
+        id="main-map"
+        mapContainerStyle={containerStyle}
+        zoom={10}
+        onLoad={onLoad}
+        onUnmount={onUnmount}
+        options={mapOptions}
+      >
+        <TransitLayer />
+        <TrafficLayer />
+        <MapDefaultCamera />
+        <MapPositions positions={filteredPositions} onClick={onClick} showStatus />
+        <MapCurrentLocation />
+      </GoogleMap>
+      {/* <MapView>
         <MapOverlay />
         {mapGeofences && <MapGeofence />}
         <MapAccuracy />
@@ -223,10 +265,11 @@ const MainPage = () => {
         <MapDefaultCamera />
         <MapSelectedDevice />
         <PoiMap />
-      </MapView>
-      <MapScale />
-      <MapCurrentLocation />
-      <MapGeocoder />
+      </MapView> */}
+      {/* <MapScale /> */}
+      {/* <MapCurrentLocation /> */}
+      {/* <MapGeocoder /> */}
+
       {!features.disableEvents && <MapNotification enabled={eventsAvailable} onClick={eventHandler} />}
       {desktop && <MapPadding left={parseInt(theme.dimensions.drawerWidthDesktop, 10)} />}
       <Button
@@ -309,6 +352,7 @@ const MainPage = () => {
                   >
                     <MenuItem value="">{'\u00a0'}</MenuItem>
                     <MenuItem value="lastUpdate">{t('deviceLastUpdate')}</MenuItem>
+                    <MenuItem value="deviceName">{t('deviceName')}</MenuItem>
                   </Select>
                 </FormControl>
                 <FormGroup>
@@ -348,7 +392,7 @@ const MainPage = () => {
         </div>
       )}
     </div>
-  );
+  ) : null;
 };
 
 export default MainPage;
