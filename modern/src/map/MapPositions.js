@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useId} from 'react';
 import { Marker } from '@react-google-maps/api';
 import { useSelector } from 'react-redux';
 import makeStyles from '@mui/styles/makeStyles';
@@ -6,13 +6,7 @@ import usePersistedState from '../common/util/usePersistedState';
 import { mapIconKey } from './core/preloadImages';
 import { findFonts } from './core/mapUtil';
 import { getStatusColor, deviceColor } from '../common/util/formatter';
-import { useId, useCallback, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { map } from './core/MapView';
-import { getStatusColor } from '../common/util/formatter';
-import usePersistedState from '../common/util/usePersistedState';
-import { mapIconKey } from './core/preloadImages';
-import { findFonts } from './core/mapUtil';
 import { useAttributePreference } from '../common/util/preferences';
 
 const MapPositions = ({ positions, onClick, showStatus }) => {

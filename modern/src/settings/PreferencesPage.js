@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
-  Accordion, AccordionSummary, AccordionDetails, Typography, Container, FormControl, InputLabel, Select, MenuItem, Checkbox, FormControlLabel, FormGroup, InputAdornment, IconButton, OutlinedInput,
+  Accordion, AccordionSummary, AccordionDetails, Typography, Container, FormControl, InputLabel, Select, MenuItem, Checkbox, FormControlLabel, FormGroup, InputAdornment, IconButton, OutlinedInput, Autocomplete, TextField, createFilterOptions,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -62,6 +62,8 @@ const PreferencesPage = () => {
   const [mapCluster, setMapCluster] = usePersistedState('mapCluster', true);
   const [mapOnSelect, setMapOnSelect] = usePersistedState('mapOnSelect', false);
 
+  const filter = createFilterOptions();
+
   const generateToken = useCatch(async () => {
     const response = await fetch('/api/session/token', {
       method: 'POST',
@@ -114,10 +116,10 @@ const PreferencesPage = () => {
                 endAdornment={(
                   <InputAdornment position="end">
                     <div className={classes.tokenActions}>
-                      <IconButton size="small" onClick={generateToken} disabled={!!token}>
+                      <IconButton size="small" edge="end" onClick={generateToken} disabled={!!token}>
                         <CachedIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" onClick={() => navigator.clipboard.writeText(token)} disabled={!token}>
+                      <IconButton size="small" edge="end" onClick={() => navigator.clipboard.writeText(token)} disabled={!token}>
                         <ContentCopyIcon fontSize="small" />
                       </IconButton>
                     </div>
@@ -180,19 +182,29 @@ const PreferencesPage = () => {
                 ))}
               </Select>
             </FormControl>
-            <FormControl>
-              <InputLabel>{t('sharedAttributes')}</InputLabel>
-              <Select
-                label={t('sharedAttributes')}
-                value={positionItems}
-                onChange={(e) => setPositionItems(e.target.value)}
-                multiple
-              >
-                {Object.keys(positionAttributes).map((key) => (
-                  <MenuItem key={key} value={key}>{positionAttributes[key].name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Autocomplete
+              multiple
+              freeSolo
+              options={Object.keys(positionAttributes)}
+              getOptionLabel={(option) => (positionAttributes.hasOwnProperty(option) ? positionAttributes[option].name : option)}
+              value={positionItems}
+              onChange={(_, option) => {
+                setPositionItems(option);
+              }}
+              filterOptions={(options, params) => {
+                const filtered = filter(options, params);
+                if (params.inputValue && !filtered.includes(params.inputValue)) {
+                  filtered.push(params.inputValue);
+                }
+                return filtered;
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder={t('sharedAttributes')}
+                />
+              )}
+            />
             <FormGroup>
               <FormControlLabel
                 control={<Checkbox checked={mapGeofences} onChange={(e) => setMapGeofences(e.target.checked)} />}
