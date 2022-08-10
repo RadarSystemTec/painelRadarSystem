@@ -21,9 +21,11 @@ import moment from 'moment';
 import DevicesList from './DevicesList';
 import MapView from '../map/core/MapView';
 import MapSelectedDevice from '../map/main/MapSelectedDevice';
+import MapSelectedDeviceC from '../map/main/MapSelectedDeviceC';
 import MapAccuracy from '../map/main/MapAccuracy';
 import MapGeofence from '../map/main/MapGeofence';
 import MapCurrentLocation from '../map/MapCurrentLocation';
+import MapCurrentLocationC from '../map/MapCurrentLocationC';
 import BottomMenu from '../common/components/BottomMenu';
 import { useTranslation } from '../common/components/LocalizationProvider';
 import PoiMap from '../map/main/PoiMap';
@@ -31,10 +33,12 @@ import MapPadding from '../map/MapPadding';
 import StatusCard from './StatusCard';
 import { devicesActions } from '../store';
 import MapDefaultCamera from '../map/main/MapDefaultCamera';
+import MapDefaultCameraC from '../map/main/MapDefaultCameraC';
 import usePersistedState from '../common/util/usePersistedState';
 import MapLiveRoutes from '../map/main/MapLiveRoutes';
 import { useDeviceReadonly } from '../common/util/permissions';
 import MapPositions from '../map/MapPositions';
+import MapPositionsC from '../map/MapPositionsC';
 import MapDirection from '../map/MapDirection';
 import MapOverlay from '../map/overlay/MapOverlay';
 import MapGeocoder from '../map/geocoder/MapGeocoder';
@@ -42,6 +46,8 @@ import MapScale from '../map/MapScale';
 import MapNotification from '../map/notification/MapNotification';
 import EventsDrawer from './EventsDrawer';
 import useFeatures from '../common/util/useFeatures';
+import GoogleMapView from '../map/core/GoogleMapView';
+import MapDirectionC from '../map/MapDirectionC';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -137,10 +143,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const MainPage = () => {
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: 'AIzaSyDzyyar2X07M9LYyyYcXCn35qkXrCXo6tM',
-  });
-
   const classes = useStyles();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -195,6 +197,7 @@ const MainPage = () => {
   }, [desktop, mapOnSelect, selectedDeviceId]);
 
   const onClick = useCallback((_, deviceId) => {
+    console.log('Selected Device', deviceId);
     dispatch(devicesActions.select(deviceId));
   }, [dispatch]);
 
@@ -219,40 +222,20 @@ const MainPage = () => {
       : Object.values(positions));
   }, [devices, positions, filterKeyword, filterStatuses, filterGroups, filterSort, filterMap]);
 
-  const containerStyle = {
-    width: '100%',
-    height: '100%',
-  };
-
-  const mapOptions = { fullscreenControl: false, streetViewControl: false, zoomControl: false, mapTypeControl: false };
-  // const mapOptions = {};
-
-  const onLoad = React.useCallback((map) => {
-    const bounds = new window.google.maps.LatLngBounds();
-    map.fitBounds(bounds);
-    // setMap(map)
-  }, []);
-
-  const onUnmount = React.useCallback((map) => {
-    // setMap(null);
-  }, []);
-
-  return isLoaded ? (
+  return (
     <div className={classes.root}>
-      <GoogleMap
-        id="main-map"
-        mapContainerStyle={containerStyle}
-        zoom={10}
-        onLoad={onLoad}
-        onUnmount={onUnmount}
-        options={mapOptions}
-      >
+      <GoogleMapView>
         <TransitLayer />
         <TrafficLayer />
-        <MapDefaultCamera />
-        <MapPositions positions={filteredPositions} onClick={onClick} showStatus />
-        <MapCurrentLocation />
-      </GoogleMap>
+        <MapDefaultCameraC />
+        <MapPositionsC positions={filteredPositions} onClick={onClick} showStatus />
+        <MapCurrentLocationC />
+        {selectedPosition && selectedPosition.course && (
+          <MapDirectionC position={selectedPosition} />
+        )}
+        <MapSelectedDeviceC />
+      </GoogleMapView>
+
       {/* <MapView>
         <MapOverlay />
         {mapGeofences && <MapGeofence />}
@@ -265,10 +248,10 @@ const MainPage = () => {
         <MapDefaultCamera />
         <MapSelectedDevice />
         <PoiMap />
-      </MapView> */}
-      {/* <MapScale /> */}
-      {/* <MapCurrentLocation /> */}
-      {/* <MapGeocoder /> */}
+      </MapView>
+      <MapScale />
+      <MapCurrentLocation />
+      <MapGeocoder /> */}
 
       {!features.disableEvents && <MapNotification enabled={eventsAvailable} onClick={eventHandler} />}
       {desktop && <MapPadding left={parseInt(theme.dimensions.drawerWidthDesktop, 10)} />}
@@ -392,7 +375,7 @@ const MainPage = () => {
         </div>
       )}
     </div>
-  ) : null;
+  );
 };
 
 export default MainPage;
