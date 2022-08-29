@@ -7,9 +7,10 @@ import { mapIconKey } from './core/preloadImages';
 import { findFonts } from './core/mapUtil';
 import { useAttributePreference } from '../common/util/preferences';
 
-const MapPositions = ({ positions, onClick, showStatus }) => {
+const MapPositions = ({ positions, onClick, showStatus, selectedPosition }) => {
   const id = useId();
   const clusters = `${id}-clusters`;
+  const direction = `${id}-direction`;
 
   const devices = useSelector((state) => state.devices.items);
 
@@ -17,7 +18,7 @@ const MapPositions = ({ positions, onClick, showStatus }) => {
 
   const [mapCluster] = usePersistedState('mapCluster', true);
 
-  const createFeature = (devices, position) => {
+  const createFeature = (devices, position, selectedPositionId) => {
     const device = devices[position.deviceId];
     return {
       id: position.id,
@@ -25,6 +26,8 @@ const MapPositions = ({ positions, onClick, showStatus }) => {
       name: device.name,
       category: mapIconKey(device.category),
       color: showStatus ? position.attributes.color || getStatusColor(device.status) : 'neutral',
+      rotation: position.course,
+      direction: selectedPositionId === position.id,
     };
   };
 
@@ -76,7 +79,7 @@ const MapPositions = ({ positions, onClick, showStatus }) => {
       id,
       type: 'symbol',
       source: id,
-      filter: ['!', ['has', 'point_count']],
+      filter: ['!has', 'point_count'],
       layout: {
         'icon-image': '{category}-{color}',
         'icon-size': iconScale,
@@ -106,6 +109,23 @@ const MapPositions = ({ positions, onClick, showStatus }) => {
         'text-size': 14,
       },
     });
+    map.addLayer({
+      id: direction,
+      type: 'symbol',
+      source: id,
+      filter: [
+        'all',
+        ['!has', 'point_count'],
+        ['==', 'direction', true],
+      ],
+      layout: {
+        'icon-image': 'direction',
+        'icon-size': iconScale,
+        'icon-allow-overlap': true,
+        'icon-rotate': ['get', 'rotation'],
+        'icon-rotation-alignment': 'map',
+      },
+    });
 
     map.on('mouseenter', id, onMouseEnter);
     map.on('mouseleave', id, onMouseLeave);
@@ -130,11 +150,14 @@ const MapPositions = ({ positions, onClick, showStatus }) => {
       if (map.getLayer(clusters)) {
         map.removeLayer(clusters);
       }
+      if (map.getLayer(direction)) {
+        map.removeLayer(direction);
+      }
       if (map.getSource(id)) {
         map.removeSource(id);
       }
     };
-  }, [mapCluster, clusters, onMarkerClick, onClusterClick]);
+  }, [mapCluster, clusters, direction, onMarkerClick, onClusterClick]);
 
   useEffect(() => {
     map.getSource(id).setData({
@@ -145,10 +168,10 @@ const MapPositions = ({ positions, onClick, showStatus }) => {
           type: 'Point',
           coordinates: [position.longitude, position.latitude],
         },
-        properties: createFeature(devices, position),
+        properties: createFeature(devices, position, selectedPosition && selectedPosition.id),
       })),
     });
-  }, [devices, positions]);
+  }, [devices, positions, selectedPosition]);
 
   return null;
 };

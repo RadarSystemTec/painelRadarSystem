@@ -12,8 +12,6 @@ import Battery60Icon from '@mui/icons-material/Battery60';
 import BatteryCharging60Icon from '@mui/icons-material/BatteryCharging60';
 import Battery20Icon from '@mui/icons-material/Battery20';
 import BatteryCharging20Icon from '@mui/icons-material/BatteryCharging20';
-import FlashOnIcon from '@mui/icons-material/FlashOn';
-import FlashOffIcon from '@mui/icons-material/FlashOff';
 import ErrorIcon from '@mui/icons-material/Error';
 import moment from 'moment';
 import { devicesActions } from '../store';
@@ -24,6 +22,8 @@ import {
 import { useTranslation } from '../common/components/LocalizationProvider';
 import { mapIconKey, mapIcons } from '../map/core/preloadImages';
 import { useAdministrator } from '../common/util/permissions';
+import usePersistedState from '../common/util/usePersistedState';
+import { ReactComponent as EngineIcon } from '../resources/images/data/engine.svg';
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -74,11 +74,32 @@ const DeviceRow = ({ data, index, style }) => {
   const item = items[index];
   const position = useSelector((state) => state.positions.items[item.id]);
 
-  const secondaryText = () => {
-    if (item.status === 'online' || !item.lastUpdate) {
-      return formatStatus(item.status, t);
+  const geofences = useSelector((state) => state.geofences.items);
+
+  const [devicePrimary] = usePersistedState('devicePrimary', 'name');
+  const [deviceSecondary] = usePersistedState('deviceSecondary', '');
+
+  const formatProperty = (key) => {
+    if (key === 'geofenceIds') {
+      const geofenceIds = item[key] || [];
+      return geofenceIds.map((id) => geofences[id].name).join(', ');
     }
-    return moment(item.lastUpdate).fromNow();
+    return item[key];
+  };
+
+  const secondaryText = () => {
+    let status;
+    if (item.status === 'online' || !item.lastUpdate) {
+      status = formatStatus(item.status, t);
+    } else {
+      status = moment(item.lastUpdate).fromNow();
+    }
+    return (
+      <>
+        {deviceSecondary && item[deviceSecondary] && `${formatProperty(deviceSecondary)} • `}
+        <span className={classes[getStatusColor(item.status)]}>{status}</span>
+      </>
+    );
   };
 
   return (
@@ -95,11 +116,10 @@ const DeviceRow = ({ data, index, style }) => {
           </Avatar>
         </ListItemAvatar>
         <ListItemText
-          primary={item.name}
+          primary={formatProperty(devicePrimary)}
           primaryTypographyProps={{ noWrap: true }}
           secondary={secondaryText()}
           secondaryTypographyProps={{ noWrap: true }}
-          classes={{ secondary: classes[getStatusColor(item.status)] }}
         />
         {position && (
           <>
@@ -114,9 +134,9 @@ const DeviceRow = ({ data, index, style }) => {
               <Tooltip title={`${t('positionIgnition')}: ${formatBoolean(position.attributes.ignition, t)}`}>
                 <IconButton size="small">
                   {position.attributes.ignition ? (
-                    <FlashOnIcon fontSize="small" className={classes.positive} />
+                    <EngineIcon width={20} height={20} className={classes.positive} />
                   ) : (
-                    <FlashOffIcon fontSize="small" className={classes.neutral} />
+                    <EngineIcon width={20} height={20} className={classes.neutral} />
                   )}
                 </IconButton>
               </Tooltip>
