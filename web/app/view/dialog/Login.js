@@ -147,10 +147,6 @@ Ext.define('Traccar.view.dialog.Login', {
         handler: 'onResetClick',
         reference: 'resetButton'
     }, {
-        text: Strings.loginRegister,
-        handler: 'onRegisterClick',
-        reference: 'registerButton'
-    }, {
         text: Strings.loginLogin,
         handler: 'onLoginClick'
     }]
