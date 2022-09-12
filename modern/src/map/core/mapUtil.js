@@ -52,6 +52,21 @@ export const prepareIcon = (background, icon, color) => {
   return context.getImageData(0, 0, canvas.width, canvas.height);
 };
 
+export const reverseGoogleCoordinates = (it) => {
+  if (!it) {
+    return it;
+  } if (Array.isArray(it)) {
+    if (it.length === 2 && !Number.isNaN(it[0]) && !Number.isNaN(it[1])) {
+      return { lng: it[1], lat: it[0] };
+    }
+    return it.map((it) => reverseGoogleCoordinates(it));
+  }
+  return {
+    ...it,
+    coordinates: reverseGoogleCoordinates(it.coordinates),
+  };
+};
+
 export const reverseCoordinates = (it) => {
   if (!it) {
     return it;
@@ -76,6 +91,27 @@ export const geofenceToFeature = (theme, item) => {
     geometry = polygon.geometry;
   } else {
     geometry = reverseCoordinates(parse(item.area));
+  }
+  return {
+    id: item.id,
+    type: 'Feature',
+    geometry,
+    properties: {
+      name: item.name,
+      color: item.attributes.color || theme.palette.colors.geometry,
+    },
+  };
+};
+
+export const geofenceToGoogleFeature = (theme, item) => {
+  let geometry;
+  if (item.area.indexOf('CIRCLE') > -1) {
+    const coordinates = item.area.replace(/CIRCLE|\(|\)|,/g, ' ').trim().split(/ +/);
+    const options = { steps: 32, units: 'meters' };
+    const polygon = circle([Number(coordinates[1]), Number(coordinates[0])], Number(coordinates[2]), options);
+    geometry = polygon.geometry;
+  } else {
+    geometry = reverseGoogleCoordinates(parse(item.area));
   }
   return {
     id: item.id,

@@ -158,12 +158,12 @@ const MapPositionsC = ({ positions, onClick, showStatus }) => {
       path: path[device.category] || path.default,
       fillColor: deviceColor(device),
       fillOpacity: 1,
-      strokeWeight: (path[device.category]) ? 0.5 : 1.5,
+      strokeWeight: (path[device.category]) ? 0.6 : 1.6,
       rotation: position.course,
       size: new window.google.maps.Size(20, 32),
       scale: (path[device.category]) ? 1.7 : 1,
-      anchor: new window.google.maps.Point(15, 30),
-      labelOrigin: new window.google.maps.Point(30, 15),
+      anchor: new window.google.maps.Point(0, 30),
+      labelOrigin: new window.google.maps.Point(0, 0),
     };
 
     return (

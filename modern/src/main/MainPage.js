@@ -23,7 +23,7 @@ import MapView from '../map/core/MapView';
 import MapSelectedDevice from '../map/main/MapSelectedDevice';
 import MapSelectedDeviceC from '../map/main/MapSelectedDeviceC';
 import MapAccuracy from '../map/main/MapAccuracy';
-import MapGeofence from '../map/MapGeofence';
+import MapGeofenceC from '../map/MapGeofenceC';
 import MapCurrentLocation from '../map/MapCurrentLocation';
 import MapCurrentLocationC from '../map/MapCurrentLocationC';
 import BottomMenu from '../common/components/BottomMenu';
@@ -39,7 +39,7 @@ import MapLiveRoutes from '../map/main/MapLiveRoutes';
 import { useDeviceReadonly } from '../common/util/permissions';
 import MapPositions from '../map/MapPositions';
 import MapPositionsC from '../map/MapPositionsC';
-import MapDirection from '../map/MapDirection';
+// import MapDirection from '../map/MapDirection';
 import MapOverlay from '../map/overlay/MapOverlay';
 import MapGeocoder from '../map/geocoder/MapGeocoder';
 import MapScale from '../map/MapScale';
@@ -252,6 +252,7 @@ const MainPage = () => {
           <MapDirectionC position={selectedPosition} />
         )}
         <MapSelectedDeviceC />
+        <MapGeofenceC />
       </GoogleMapView>
 
       {/* <MapView>
