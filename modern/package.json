@@ -11,6 +11,9 @@
     "@mui/lab": "^5.0.0-alpha.92",
     "@mui/material": "^5.9.2",
     "@mui/styles": "^5.9.2",
+    "@mui/utils": "^5.10.3",
+    "@mui/x-data-grid": "^5.17.2",
+    "@react-google-maps/api": "^2.12.1",
     "@reduxjs/toolkit": "^1.8.3",
     "@tmcw/togeojson": "^5.2.1",
     "@turf/circle": "^6.5.0",
@@ -18,6 +21,7 @@
     "mapbox-gl": "^1.13.2",
     "maplibre-gl": "^2.1.9",
     "moment": "^2.29.4",
+    "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-draggable": "^4.4.5",
@@ -42,8 +46,7 @@
     "workbox-range-requests": "^6.5.4",
     "workbox-routing": "^6.5.4",
     "workbox-strategies": "^6.5.4",
-    "workbox-streams": "^6.5.4",
-    "@react-google-maps/api": "^2.12.1"
+    "workbox-streams": "^6.5.4"
   },
   "scripts": {
     "start": "react-scripts start",

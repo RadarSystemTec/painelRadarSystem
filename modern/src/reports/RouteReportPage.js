@@ -27,8 +27,11 @@ import useReportStyles from './common/useReportStyles';
 import TableShimmer from '../common/components/TableShimmer';
 import MapCamera from '../map/MapCamera';
 import MapGeofence from '../map/MapGeofence';
+import EnhancedTableHead from './components/EnhancedTableHead';
+import stableSort from './common/stableSort';
+import getComparator from './common/getComparator';
 
-function TablePaginationActions(props) {
+const TablePaginationActions = (props) => {
   const theme = useTheme();
   const { count, page, rowsPerPage, onPageChange } = props;
 
@@ -82,7 +85,7 @@ function TablePaginationActions(props) {
       </IconButton>
     </Box>
   );
-}
+};
 
 const RouteReportPage = () => {
   const classes = useReportStyles();
@@ -93,6 +96,7 @@ const RouteReportPage = () => {
   const devices = useSelector((state) => state.devices.items);
 
   const [columns, setColumns] = usePersistedState('routeColumns', ['fixTime', 'latitude', 'longitude', 'speed', 'address']);
+
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -124,23 +128,47 @@ const RouteReportPage = () => {
     }
   });
 
+  /* ORDERING */
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
+  const [order, setOrder] = React.useState('asc');
+  const [orderBy, setOrderBy] = React.useState('calories');
+  const [selected, setSelected] = React.useState([]);
+  const [dense, setDense] = React.useState(false);
 
-  // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - items.length) : 0;
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelected = items.map((n) => n.name);
+      setSelected(newSelected);
+      return;
+    }
+    setSelected([]);
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (
-    event,
-  ) => {
+  const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+  const handleChangeDense = (event) => {
+    setDense(event.target.checked);
+  };
+
+  const isSelected = (name) => selected.indexOf(name) !== -1;
+
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - items.length) : 0;
 
   return (
     <PageLayout menu={<ReportsMenu />} breadcrumbs={['reportTitle', 'reportRoute']}>
@@ -168,34 +196,47 @@ const RouteReportPage = () => {
             </ReportFilter>
           </div>
           <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
-              <TableHead>
-                <TableRow>
-                  <TableCell className={classes.columnAction} />
-                  <TableCell>{t('sharedDevice')}</TableCell>
-                  {columns.map((key) => (<TableCell key={key}>{positionAttributes[key].name}</TableCell>))}
-                </TableRow>
-              </TableHead>
+            <Table
+              sx={{ minWidth: 750 }}
+            >
+              <EnhancedTableHead
+                numSelected={selected.length}
+                order={order}
+                columns={columns}
+                positionAttributes={positionAttributes}
+                orderBy={orderBy}
+                onSelectAllClick={handleSelectAllClick}
+                onRequestSort={handleRequestSort}
+                rowCount={items.length}
+              />
               <TableBody>
-                {(rowsPerPage > 0
-                  ? items.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  : items
-                ).map((row) => (
-                  // <TableRow key={row.id}>
-                  //   <TableCell><div /></TableCell>
-                  //   <TableCell>{devices[item.deviceId].name}</TableCell>
-                  //   {columns.map((key) => (
-                  //     <TableCell key={key}>
-                  //       <PositionValue
-                  //         position={row}
-                  //         property={row.hasOwnProperty(key) ? key : null}
-                  //         attribute={row.hasOwnProperty(key) ? null : key}
-                  //       />
-                  //     </TableCell>
-                  //   ))}
-                  // </TableRow>
-                  <TableRow />
-                ))}
+                {!loading ? stableSort(items, getComparator(order, orderBy))
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => (
+                    <TableRow key={row.id}>
+                      <TableCell className={classes.columnAction} padding="none">
+                        {selectedItem === row ? (
+                          <IconButton size="small" onClick={() => setSelectedItem(null)}>
+                            <GpsFixedIcon fontSize="small" />
+                          </IconButton>
+                        ) : (
+                          <IconButton size="small" onClick={() => setSelectedItem(row)}>
+                            <LocationSearchingIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                      </TableCell>
+                      <TableCell>{devices[row.deviceId].name}</TableCell>
+                      {columns.map((key) => (
+                        <TableCell key={key}>
+                          <PositionValue
+                            position={row}
+                            property={row.hasOwnProperty(key) ? key : null}
+                            attribute={row.hasOwnProperty(key) ? null : key}
+                          />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  )) : <TableShimmer columns={columns.length + 2} startAction />}
                 {emptyRows > 0 && (
                   <TableRow style={{ height: 53 * emptyRows }}>
                     <TableCell colSpan={6} />
@@ -205,14 +246,14 @@ const RouteReportPage = () => {
               <TableFooter>
                 <TableRow>
                   <TablePagination
-                    rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                    rowsPerPageOptions={[25, 50, 100, 200, 300, 400, 500]}
                     colSpan={3}
                     count={items.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     SelectProps={{
                       inputProps: {
-                        'aria-label': 'rows per page',
+                        'aria-label': 'Linhas por pagina',
                       },
                       native: true,
                     }}
