@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useId } from 'react';
-import { Marker } from '@react-google-maps/api';
+import { Marker, useGoogleMap } from '@react-google-maps/api';
 import { useSelector } from 'react-redux';
 import makeStyles from '@mui/styles/makeStyles';
 import usePersistedState from '../common/util/usePersistedState';
 import { mapIconKey } from './core/preloadImages';
 import { findFonts } from './core/mapUtil';
 import { getStatusColor, deviceColor } from '../common/util/formatter';
-import { map } from './core/MapView';
 import { useAttributePreference } from '../common/util/preferences';
 
 const MapPositionsC = ({ positions, onClick, showStatus }) => {
@@ -14,8 +13,12 @@ const MapPositionsC = ({ positions, onClick, showStatus }) => {
   const clusters = `${id}-clusters`;
   const devices = useSelector((state) => state.devices.items);
 
+  const map = useGoogleMap();
+
   // const [mapCluster] = usePersistedState('mapCluster', true);
   const iconScale = useAttributePreference('iconScale', 1);
+
+  const markers = [];
 
   // const createFeature = (devices, position) => {
   //   const device = devices[position.deviceId];
@@ -38,8 +41,6 @@ const MapPositionsC = ({ positions, onClick, showStatus }) => {
   }, [onClick]);
 
   const onMarkerClick = useCallback((event) => {
-    console.log('event');
-    console.log(event);
     const feature = event;
     if (onClick) {
       onClick(feature.position.id, feature.device.id);
@@ -133,17 +134,17 @@ const MapPositionsC = ({ positions, onClick, showStatus }) => {
   // }, [mapCluster, clusters, onMarkerClick, onClusterClick]);
 
   // useEffect(() => {
-  //   map.getSource(id).setData({
-  //     type: 'FeatureCollection',
-  //     features: positions.filter((it) => devices.hasOwnProperty(it.deviceId)).map((position) => ({
-  //       type: 'Feature',
-  //       geometry: {
-  //         type: 'Point',
-  //         coordinates: [position.longitude, position.latitude],
-  //       },
-  //       properties: createFeature(devices, position),
-  //     })),
-  //   });
+  //   // map.getSource(id).setData({
+  //   //   type: 'FeatureCollection',
+  //   //   features: positions.filter((it) => devices.hasOwnProperty(it.deviceId)).map((position) => ({
+  //   //     type: 'Feature',
+  //   //     geometry: {
+  //   //       type: 'Point',
+  //   //       coordinates: [position.longitude, position.latitude],
+  //   //     },
+  //   //     properties: createFeature(devices, position),
+  //   //   })),
+  //   // });
   // }, [devices, positions]);
 
   return positions.filter((it) => devices.hasOwnProperty(it.deviceId)).map((position) => {
@@ -170,7 +171,7 @@ const MapPositionsC = ({ positions, onClick, showStatus }) => {
       <Marker
         key={device.id}
         id={device.id}
-        label={{ text: `${device.name}`, fontWeight: '500' }}
+        label={{ text: `${device.name}` }}
         // label={{ text: device.name, color: "black", fontSize: 10, fontWeight: 10, className: "map-marker-title", fontFamily: "Arial" }}
         onClick={(event) => onMarkerClick({ ...event, device, position })}
         icon={svgMarker}
