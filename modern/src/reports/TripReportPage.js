@@ -26,6 +26,8 @@ import TableShimmer from '../common/components/TableShimmer';
 import MapMarkers from '../map/MapMarkers';
 import MapCamera from '../map/MapCamera';
 import MapGeofence from '../map/MapGeofence';
+import MapCameraC from '../map/MapCameraC';
+import MapGeofenceC from '../map/MapGeofenceC';
 import stableSort from './common/stableSort';
 import getComparator from './common/getComparator';
 
@@ -231,6 +233,16 @@ const TripReportPage = () => {
       <div className={classes.container}>
         {selectedItem && (
           <div className={classes.containerMap}>
+            {/* <GoogleMapView>
+              <MapGeofenceC />
+              {route && (
+                <>
+                  <MapRoutePathC positions={route} />
+                  <MapMarkersC markers={createMarkers()} />
+                  <MapCameraC positions={route} />
+                </>
+              )}
+            </GoogleMapView> */}
             <MapView>
               <MapGeofence />
               {route && (

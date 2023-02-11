@@ -1,4 +1,5 @@
 import React, {
+  useEffect,
   useRef, useState,
 } from 'react';
 
@@ -6,10 +7,10 @@ import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import { useAttributePreference } from '../../common/util/preferences';
 import useMapStyles from './useMapStyles';
 
-const element = document.createElement('div');
-element.style.width = '100%';
-element.style.height = '100%';
-element.style.boxSizing = 'initial';
+// const element = document.createElement('div');
+// element.style.width = '100%';
+// element.style.height = '100%';
+// element.style.boxSizing = 'initial';
 
 // export const map = new maplibregl.Map({
 //   container: element,
@@ -49,9 +50,10 @@ element.style.boxSizing = 'initial';
 
 // map.addControl(switcher);
 
-const GoogleMapView = ({ children }) => {
+const GoogleMapView = ({ fullscreenControl = false, children }) => {
   const containerEl = useRef(null);
   const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
     googleMapsApiKey: 'AIzaSyDzyyar2X07M9LYyyYcXCn35qkXrCXo6tM',
   });
 
@@ -67,6 +69,7 @@ const GoogleMapView = ({ children }) => {
   const [map, setMap] = React.useState(null);
 
   const onLoad = React.useCallback((map) => {
+    // console.log('loaded');
     const bounds = new window.google.maps.LatLngBounds(center);
     map.fitBounds(bounds);
     setMap(map);
@@ -118,14 +121,15 @@ const GoogleMapView = ({ children }) => {
     height: '100%',
   };
 
-  const mapOptions = { fullscreenControl: false, streetViewControl: false, zoomControl: false, mapTypeControl: false };
+  const mapOptions = { fullscreenControl, streetViewControl: false, zoomControl: false, mapTypeControl: false };
 
   return isLoaded && (
     <div style={{ width: '100%', height: '100%' }} ref={containerEl}>
       <GoogleMap
         id="main-map"
         mapContainerStyle={containerStyle}
-        zoom={0}
+        zoom={10}
+        // center={center}
         onLoad={onLoad}
         onUnmount={onUnmount}
         options={mapOptions}

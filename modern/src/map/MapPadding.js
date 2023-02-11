@@ -1,3 +1,4 @@
+import { useGoogleMap } from '@react-google-maps/api';
 import { useEffect } from 'react';
 
 import { map } from './core/MapView';
@@ -5,6 +6,7 @@ import { map } from './core/MapView';
 const MapPadding = ({
   top, right, bottom, left,
 }) => {
+  // const map = useGoogleMap();
   useEffect(() => {
     map.setPadding({
       top, right, bottom, left,

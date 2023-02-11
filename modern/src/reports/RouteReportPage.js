@@ -21,15 +21,17 @@ import ColumnSelect from './components/ColumnSelect';
 import usePositionAttributes from '../common/attributes/usePositionAttributes';
 import { useCatch } from '../reactHelper';
 import MapView from '../map/core/MapView';
-import MapRoutePath from '../map/MapRoutePath';
+import MapRoutePathC from '../map/MapRoutePathC';
 import MapPositions from '../map/MapPositions';
 import useReportStyles from './common/useReportStyles';
 import TableShimmer from '../common/components/TableShimmer';
-import MapCamera from '../map/MapCamera';
+import MapCameraC from '../map/MapCameraC';
 import MapGeofence from '../map/MapGeofence';
 import EnhancedTableHead from './components/EnhancedTableHead';
 import stableSort from './common/stableSort';
 import getComparator from './common/getComparator';
+import MapPositionsC from '../map/MapPositionsC';
+import GoogleMapView from '../map/core/GoogleMapView';
 
 const TablePaginationActions = (props) => {
   const theme = useTheme();
@@ -175,14 +177,21 @@ const RouteReportPage = () => {
       <div className={classes.container}>
         {selectedItem && (
           <div className={classes.containerMap}>
-            <MapView>
+            <GoogleMapView fullscreenControl>
+              {[...new Set(items.map((it) => it.deviceId))].map((deviceId) => (
+                <MapRoutePathC key={deviceId} positions={items.filter((position) => position.deviceId === deviceId)} />
+              ))}
+              <MapPositionsC positions={[selectedItem]} />
+              <MapCameraC positions={items} />
+            </GoogleMapView>
+            {/* <MapView>
               <MapGeofence />
               {[...new Set(items.map((it) => it.deviceId))].map((deviceId) => (
                 <MapRoutePath key={deviceId} positions={items.filter((position) => position.deviceId === deviceId)} />
               ))}
               <MapPositions positions={[selectedItem]} />
             </MapView>
-            <MapCamera positions={items} />
+            <MapCamera positions={items} /> */}
           </div>
         )}
         <div className={classes.containerMain}>

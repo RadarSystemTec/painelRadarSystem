@@ -198,7 +198,6 @@ const MainPage = () => {
   }, [desktop, mapOnSelect, selectedDeviceId]);
 
   const onClick = useCallback((_, deviceId) => {
-    console.log('Selected Device', deviceId);
     dispatch(devicesActions.select(deviceId));
   }, [dispatch]);
 
@@ -242,7 +241,7 @@ const MainPage = () => {
 
   return (
     <div className={classes.root}>
-      <GoogleMapView>
+      <GoogleMapView key="MAP">
         <TransitLayer />
         <TrafficLayer />
         <MapDefaultCameraC />

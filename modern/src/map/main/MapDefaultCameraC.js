@@ -35,7 +35,8 @@ const MapDefaultCameraC = () => {
         });
         if (coordinates.length > 1) {
           const bounds = coordinates.reduce((bounds, item) => bounds.extend(item), new window.google.maps.LatLngBounds(coordinates[0], coordinates[0]));
-          map.fitBounds(bounds);
+          // map.fitBounds(bounds);
+          map.fitBounds(bounds, { left: 100 });
           setInitialized(true);
         } else if (coordinates.length) {
           const coord = coordinates[0];
