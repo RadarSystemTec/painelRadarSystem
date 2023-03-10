@@ -91,7 +91,7 @@ export const getStatusColor = (status) => {
 export const deviceColor = (device) => {
   switch (device.status) {
     case 'online':
-      return '#86f693';
+      return '#78dd84';
     case 'offline':
       return '#FF0000';
     default:

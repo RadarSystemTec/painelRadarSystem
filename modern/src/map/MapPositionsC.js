@@ -81,7 +81,7 @@ const MapPositionsC = ({ positions, onClick, showStatus }) => {
         key={device.id}
         id={device.id}
         name={device.id}
-        label={{ text: `${device.name}` }}
+        label={{ text: `${device.name}`, fontSize: '16px', fontWeight: 'bold' }}
         // label={{ text: device.name, color: 'black', fontSize: 10, fontWeight: 20, className: 'map-marker-title', fontFamily: 'Arial' }}
         onClick={(event) => onMarkerClick({ ...event, device, position })}
         icon={{
